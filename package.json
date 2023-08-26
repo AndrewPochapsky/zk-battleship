@@ -1,0 +1,22 @@
+{
+  "name": "zk-battleship",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndrewPochapsky/zk-battleship.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AndrewPochapsky/zk-battleship/issues"
+  },
+  "homepage": "https://github.com/AndrewPochapsky/zk-battleship#readme",
+  "dependencies": {
+    "circomlib": "^2.0.5"
+  }
+}
