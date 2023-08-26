@@ -2,23 +2,7 @@ pragma circom 2.1.4;
 
 include "../node_modules/circomlib/circuits/gates.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
-
-template Main() {
-    signal input board[10][10];
-    signal input patrol_location[2][2]; //  [0, 0], [0, 1] is the start location | [1, 0], [1, 1] is the end location.
-    signal input sub_location[2][2];
-    signal input destroyer_location[2][2];
-    signal input battleship_location[2][2];
-    signal input carrier_location[2][2];
-
-    component verify_board = VerifyBoard();
-    verify_board.board <== board;
-    verify_board.patrol_location <== patrol_location;
-    verify_board.sub_location <== sub_location;
-    verify_board.destroyer_location <== destroyer_location;
-    verify_board.battleship_location <== battleship_location;
-    verify_board.carrier_location <== carrier_location;
-}
+include "./utils.circom";
 
 /*
     Board configuration:
@@ -75,18 +59,6 @@ template VerifyBoard() {
             board[i][j] * condition[i][j].out === 0;
         }
     }
-}
-
-/*
- * `out` = `cond` ? `L` : `R`
- */
-template IfThenElse() {
-    signal input cond;
-    signal input L;
-    signal input R;
-    signal output out;
-
-    out <== cond * (L - R) + R;
 }
 
 template VerifyBoatLocation(boat_length, marker) {

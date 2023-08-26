@@ -1,7 +1,7 @@
 import { WitnessTester } from "circomkit";
 import { circomkit } from "./common";
 
-describe("Test Main", () => {
+describe("Test Verify Board", () => {
   let circuit: WitnessTester<
     [
       "board",
@@ -14,9 +14,9 @@ describe("Test Main", () => {
   >;
 
   before(async () => {
-    circuit = await circomkit.WitnessTester(`main`, {
-      file: "circuit",
-      template: "Main",
+    circuit = await circomkit.WitnessTester(`verify_board`, {
+      file: "verify_board",
+      template: "VerifyBoard",
       params: [],
     });
     console.log("#constraints:", await circuit.getConstraintCount());
