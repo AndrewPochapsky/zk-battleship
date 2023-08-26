@@ -172,5 +172,3 @@ template VerifyBoatLocation(boat_length, marker) {
         }
     }
 }
-
-component main = Main();
