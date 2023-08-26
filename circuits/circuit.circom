@@ -142,10 +142,6 @@ template VerifyBoatLocation(boat_length, marker) {
     signal x_in_range[10];
     signal y_in_range[10];
 
-// start_x = 0;
-// start_y = 0;
-// end_x = 0;
-// enx_y = 1;
     for (var i = 0; i < 10; i++) {
         greater_eq_than_lower_x[i] = GreaterEqThan(4);
         greater_eq_than_lower_x[i].in[0] <== i;
