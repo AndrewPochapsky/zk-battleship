@@ -72,7 +72,7 @@ template VerifyBoard() {
             condition[i][j].L <== 1;
             condition[i][j].R <== 0;
 
-            board[i][j] * is_sea_tile[i][j].out === condition[i][j].out;
+            board[i][j] * condition[i][j].out === 0;
         }
     }
 }
@@ -121,10 +121,10 @@ template VerifyBoatLocation(boat_length, marker) {
     component horizontal_length_equal = IsEqual();
     component vertical_length_equal = IsEqual();
 
-    horizontal_length_equal.in[0] <== end_y - start_y;
+    horizontal_length_equal.in[0] <== end_y - start_y + 1;
     horizontal_length_equal.in[1] <== boat_length;
 
-    vertical_length_equal.in[0] <== end_x - start_x;
+    vertical_length_equal.in[0] <== end_x - start_x + 1;
     vertical_length_equal.in[1] <== boat_length;
 
     component length_matches = XOR();
@@ -142,6 +142,10 @@ template VerifyBoatLocation(boat_length, marker) {
     signal x_in_range[10];
     signal y_in_range[10];
 
+// start_x = 0;
+// start_y = 0;
+// end_x = 0;
+// enx_y = 1;
     for (var i = 0; i < 10; i++) {
         greater_eq_than_lower_x[i] = GreaterEqThan(4);
         greater_eq_than_lower_x[i].in[0] <== i;
@@ -163,12 +167,12 @@ template VerifyBoatLocation(boat_length, marker) {
         y_in_range[i] <== greater_eq_than_lower_y[i].out * less_eq_than_upper_y[i].out;
     }
 
-    // [i][j] == marker if boat is in that location, 0 otherwise.
-    //signal mask[10][10];
+    signal in_range[10][10];
     for (var i = 0; i < 10; i++) {
         for (var j = 0; j < 10; j++) {
-            mask[i][j] <== x_in_range[i] * y_in_range[j] * marker;
-            board[i][j] === mask[i][j];
+            in_range[i][j] <== x_in_range[i] * y_in_range[j];
+            mask[i][j] <== in_range[i][j] * marker;
+            in_range[i][j] * board[i][j] === mask[i][j];
         }
     }
 }
