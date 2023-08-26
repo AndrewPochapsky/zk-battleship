@@ -63,7 +63,7 @@ template VerifyBoard() {
     component is_sea_tile[10][10];
     for (var i = 0; i < 10; i++) {
         for (var j = 0; j < 10; j++) {
-            var sum = verify_patrol.mask[i][j] + verify_sub.mask[i][j] + verify_destroyer.mask[i][j];
+            var sum = verify_patrol.mask[i][j] + verify_sub.mask[i][j] + verify_destroyer.mask[i][j] + verify_battleship.mask[i][j] + verify_carrier.mask[i][j];
             is_sea_tile[i][j] = IsZero();
             is_sea_tile[i][j].in <== sum;
 
