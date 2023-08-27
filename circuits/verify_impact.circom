@@ -43,7 +43,7 @@ template VerifyImpact() {
         }
     }
 
-    component greater_than = GreaterThan(4);
+    component greater_than = GreaterThan(3);
     greater_than.in[0] <== calc_total.out;
     greater_than.in[1] <== 0;
 
