@@ -3,6 +3,7 @@ pragma circom 2.1.4;
 include "../node_modules/circomlib/circuits/gates.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
 include "./utils.circom";
+include "./commit.circom";
 
 /*
     Board configuration:
@@ -16,11 +17,13 @@ include "./utils.circom";
 */
 template VerifyBoard() {
     signal input board[10][10];
-    signal input patrol_location[2][2]; //  [0, 0], [0, 1] is the start location | [1, 0], [1, 1] is the end location.
+    signal input patrol_location[2][2];
     signal input sub_location[2][2];
     signal input destroyer_location[2][2];
     signal input battleship_location[2][2];
     signal input carrier_location[2][2];
+    signal input secret; // Used to "salt" the commitment.
+    signal output board_commitment; // A hash commitment to the board using Poseidon.
 
     component verify_patrol = VerifyBoatLocation(2, 1);
     verify_patrol.board <== board;
@@ -59,6 +62,12 @@ template VerifyBoard() {
             board[i][j] * condition[i][j].out === 0;
         }
     }
+
+    component generate_board_commitment = GenerateBoardCommitment();
+    generate_board_commitment.board <== board;
+    generate_board_commitment.secret <== secret;
+
+    board_commitment <== generate_board_commitment.out;
 }
 
 template VerifyBoatLocation(boat_length, marker) {

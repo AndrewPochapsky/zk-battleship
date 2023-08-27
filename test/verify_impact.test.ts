@@ -1,283 +1,127 @@
 import { WitnessTester } from "circomkit";
-import { circomkit } from "./common";
+import { circomkit, generateCommitment } from "./common";
 
-describe("Test Verify Board", () => {
+describe("Test Verify Impact", () => {
   let circuit: WitnessTester<
-    [
-      "board",
-      "patrol_location",
-      "sub_location",
-      "destroyer_location",
-      "battleship_location",
-      "carrier_location"
-    ]
+    ["board", "coordinate", "board_commitment", "secret"],
+    ["is_hit"]
   >;
 
   before(async () => {
-    circuit = await circomkit.WitnessTester(`verify_board`, {
-      file: "verify_board",
-      template: "VerifyBoard",
+    circuit = await circomkit.WitnessTester(`verify_impact`, {
+      file: "verify_impact",
+      template: "VerifyImpact",
       params: [],
     });
     console.log("#constraints:", await circuit.getConstraintCount());
   });
 
-  it("should be valid", async () => {
-    await circuit.expectPass({
-      board: [
-        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-      ],
-      patrol_location: [
-        [0, 0],
-        [0, 1],
-      ],
-      sub_location: [
-        [1, 8],
-        [3, 8],
-      ],
-      destroyer_location: [
-        [5, 4],
-        [5, 6],
-      ],
-      battleship_location: [
-        [5, 1],
-        [8, 1],
-      ],
-      carrier_location: [
-        [5, 9],
-        [9, 9],
-      ],
+  it("is hit", async () => {
+    let board: number[][] = [
+      [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
+    ];
+    let secret = 42;
+
+    let commitment = await generateCommitment(board, secret);
+
+    await circuit.expectPass(
+      {
+        board: board,
+        coordinate: [0, 0],
+        board_commitment: commitment,
+        secret: secret,
+      },
+      { is_hit: 1 }
+    );
+  });
+
+  it("is miss", async () => {
+    let board: number[][] = [
+      [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
+    ];
+    let secret = 42;
+
+    let commitment = await generateCommitment(board, secret);
+
+    await circuit.expectPass(
+      {
+        board: board,
+        coordinate: [1, 0],
+        board_commitment: commitment,
+        secret: secret,
+      },
+      { is_hit: 0 }
+    );
+  });
+
+  it("invalid board, should fail", async () => {
+    let board: number[][] = [
+      [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
+    ];
+    let secret = 42;
+
+    let commitment = await generateCommitment(board, secret);
+
+    // Change the board.
+    board[0][0] = 0;
+
+    await circuit.expectFail({
+      board: board,
+      coordinate: [0, 0],
+      board_commitment: commitment,
+      secret: secret,
     });
   });
 
-  it("missing ship, should fail", async () => {
-    await circuit.expectFail({
-      board: [
-        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-      ],
-      patrol_location: [
-        [0, 0],
-        [0, 1],
-      ],
-      sub_location: [
-        [1, 8],
-        [3, 8],
-      ],
-      destroyer_location: [
-        [5, 4],
-        [5, 6],
-      ],
-      battleship_location: [
-        [5, 1],
-        [8, 1],
-      ],
-      carrier_location: [
-        [5, 9],
-        [9, 9],
-      ],
-    });
-  });
+  it("invalid secret, should fail", async () => {
+    let board: number[][] = [
+      [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
+    ];
+    let secret = 42;
 
-  it("invalid sea tile value, should fail", async () => {
-    await circuit.expectFail({
-      board: [
-        [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-      ],
-      patrol_location: [
-        [0, 0],
-        [0, 1],
-      ],
-      sub_location: [
-        [1, 8],
-        [3, 8],
-      ],
-      destroyer_location: [
-        [5, 4],
-        [5, 6],
-      ],
-      battleship_location: [
-        [5, 1],
-        [8, 1],
-      ],
-      carrier_location: [
-        [5, 9],
-        [9, 9],
-      ],
-    });
-  });
+    let commitment = await generateCommitment(board, secret);
 
-  it("out of bounds location, should fail", async () => {
     await circuit.expectFail({
-      board: [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-      ],
-      patrol_location: [
-        [0, 9],
-        [0, 10],
-      ],
-      sub_location: [
-        [1, 8],
-        [3, 8],
-      ],
-      destroyer_location: [
-        [5, 4],
-        [5, 6],
-      ],
-      battleship_location: [
-        [5, 1],
-        [8, 1],
-      ],
-      carrier_location: [
-        [5, 9],
-        [9, 9],
-      ],
-    });
-  });
-
-  it("miss-alignment, should fail", async () => {
-    await circuit.expectFail({
-      board: [
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-      ],
-      patrol_location: [
-        [0, 0],
-        [1, 1],
-      ],
-      sub_location: [
-        [1, 8],
-        [3, 8],
-      ],
-      destroyer_location: [
-        [5, 4],
-        [5, 6],
-      ],
-      battleship_location: [
-        [5, 1],
-        [8, 1],
-      ],
-      carrier_location: [
-        [5, 9],
-        [9, 9],
-      ],
-    });
-  });
-
-  it("invalid ship length, should fail", async () => {
-    await circuit.expectFail({
-      board: [
-        [1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-      ],
-      patrol_location: [
-        [0, 0],
-        [0, 2],
-      ],
-      sub_location: [
-        [1, 8],
-        [3, 8],
-      ],
-      destroyer_location: [
-        [5, 4],
-        [5, 6],
-      ],
-      battleship_location: [
-        [5, 1],
-        [8, 1],
-      ],
-      carrier_location: [
-        [5, 9],
-        [9, 9],
-      ],
-    });
-  });
-
-  it("location and board mismatch, should fail", async () => {
-    await circuit.expectFail({
-      board: [
-        [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 4, 0, 0, 3, 3, 3, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 4, 0, 0, 0, 0, 0, 0, 0, 5],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-      ],
-      patrol_location: [
-        [0, 0],
-        [0, 1],
-      ],
-      sub_location: [
-        [1, 8],
-        [3, 8],
-      ],
-      destroyer_location: [
-        [5, 4],
-        [5, 6],
-      ],
-      battleship_location: [
-        [5, 1],
-        [8, 1],
-      ],
-      carrier_location: [
-        [5, 9],
-        [9, 9],
-      ],
+      board: board,
+      coordinate: [0, 0],
+      board_commitment: commitment,
+      secret: secret + 1,
     });
   });
 });
