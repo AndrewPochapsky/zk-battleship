@@ -7,17 +7,15 @@ template GenerateBoardCommitment() {
     signal input secret;
     signal output out;
 
-    component hashers[11];
-    hashers[0] = Poseidon(1);
-    hashers[0].inputs[0] <== secret;
+    component hashers[10];
 
-    var previousHash = hashers[0].out;
+    var previousHash = secret;
     for (var i = 0; i < 10; i++) {
-        hashers[i + 1] = Poseidon(10);
+        hashers[i] = Poseidon(10);
         for (var j = 0; j < 10; j++) {
-            hashers[i + 1].inputs[j] <== board[i][j] + previousHash;
+            hashers[i].inputs[j] <== board[i][j] + previousHash;
         }
-        previousHash = hashers[i + 1].out;
+        previousHash = hashers[i].out;
     }
-    out <== hashers[10].out;
+    out <== hashers[9].out;
 }
