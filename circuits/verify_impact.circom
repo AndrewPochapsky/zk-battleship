@@ -27,8 +27,9 @@ template VerifyImpact() {
     generate_board_commitment.secret <== secret;
     generate_board_commitment.out === board_commitment;
 
-    // Construct board
-    component construct_board = ConstructBoard();
+    // Construct board. Since the commitment is valid we do not need
+    // to validate all of the details again.
+    component construct_board = ConstructBoard(/*should_validate=*/ 0);
     construct_board.patrol_location <== patrol_location;
     construct_board.sub_location <== sub_location;
     construct_board.destroyer_location <== destroyer_location;
