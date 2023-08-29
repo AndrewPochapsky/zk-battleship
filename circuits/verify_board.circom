@@ -5,18 +5,7 @@ include "../node_modules/circomlib/circuits/comparators.circom";
 include "./utils.circom";
 include "./commit.circom";
 
-/*
-    Board configuration:
-    10 x 10 grid of field elements.
-    0 -> water
-    1 -> patrol boat
-    2 -> submarine
-    3 -> destroyer
-    4 -> battleship
-    5 -> carrier
-*/
 template VerifyBoard() {
-    signal input board[10][10];
     signal input patrol_location[2][2];
     signal input sub_location[2][2];
     signal input destroyer_location[2][2];
@@ -25,54 +14,60 @@ template VerifyBoard() {
     signal input secret; // Used to "salt" the commitment.
     signal output board_commitment; // A hash commitment to the board using Poseidon.
 
-    component verify_patrol = VerifyBoatLocation(2, 1);
-    verify_patrol.board <== board;
-    verify_patrol.location <== patrol_location;
-
-    component verify_sub = VerifyBoatLocation(3, 2);
-    verify_sub.board <== board;
-    verify_sub.location <== sub_location;
-
-    component verify_destroyer = VerifyBoatLocation(3, 3);
-    verify_destroyer.board <== board;
-    verify_destroyer.location <== destroyer_location;
-
-    component verify_battleship = VerifyBoatLocation(4, 4);
-    verify_battleship.board <== board;
-    verify_battleship.location <== battleship_location;
-
-    component verify_carrier = VerifyBoatLocation(5, 5);
-    verify_carrier.board <== board;
-    verify_carrier.location <== carrier_location;
-
-    // Verify sea tiles are 0
-    component condition[10][10];
-    component is_sea_tile[10][10];
-    for (var i = 0; i < 10; i++) {
-        for (var j = 0; j < 10; j++) {
-            var sum = verify_patrol.mask[i][j] + verify_sub.mask[i][j] + verify_destroyer.mask[i][j] + verify_battleship.mask[i][j] + verify_carrier.mask[i][j];
-            is_sea_tile[i][j] = IsZero();
-            is_sea_tile[i][j].in <== sum;
-
-            condition[i][j] = IfThenElse();
-            condition[i][j].cond <== is_sea_tile[i][j].out;
-            condition[i][j].L <== 1;
-            condition[i][j].R <== 0;
-
-            board[i][j] * condition[i][j].out === 0;
-        }
-    }
+    component construct_board = ConstructBoard();
+    construct_board.patrol_location <== patrol_location;
+    construct_board.sub_location <== sub_location;
+    construct_board.destroyer_location <== destroyer_location;
+    construct_board.battleship_location <== battleship_location;
+    construct_board.carrier_location <== carrier_location;
 
     component generate_board_commitment = GenerateBoardCommitment();
-    generate_board_commitment.board <== board;
+    generate_board_commitment.patrol_location <== patrol_location;
+    generate_board_commitment.sub_location <== sub_location;
+    generate_board_commitment.destroyer_location <== destroyer_location;
+    generate_board_commitment.battleship_location <== battleship_location;
+    generate_board_commitment.carrier_location <== carrier_location;
     generate_board_commitment.secret <== secret;
 
     board_commitment <== generate_board_commitment.out;
 }
 
-template VerifyBoatLocation(boat_length, marker) {
+template ConstructBoard() {
+    signal input patrol_location[2][2];
+    signal input sub_location[2][2];
+    signal input destroyer_location[2][2];
+    signal input battleship_location[2][2];
+    signal input carrier_location[2][2];
+
+    signal output board[10][10];
+
+    component verify_patrol = ConstructPositionMask(2);
+    verify_patrol.location <== patrol_location;
+
+    component verify_sub = ConstructPositionMask(3);
+    verify_sub.location <== sub_location;
+
+    component verify_destroyer = ConstructPositionMask(3);
+    verify_destroyer.location <== destroyer_location;
+
+    component verify_battleship = ConstructPositionMask(4);
+    verify_battleship.location <== battleship_location;
+
+    component verify_carrier = ConstructPositionMask(5);
+    verify_carrier.location <== carrier_location;
+
+    // Verify positions don't overlap
+    for (var i = 0; i < 10; i++) {
+        for (var j = 0; j < 10; j++) {
+            // Each tile must be either 1 or 0.
+            board[i][j] <== verify_patrol.mask[i][j] + verify_sub.mask[i][j] + verify_destroyer.mask[i][j] + verify_battleship.mask[i][j] + verify_carrier.mask[i][j];
+            (board[i][j] - 1) * board[i][j] === 0;
+        }
+    }
+}
+
+template ConstructPositionMask(boat_length) {
     signal input location[2][2];
-    signal input board[10][10];
     signal output mask[10][10];
 
     // Assume the order of the points given is top-bottom left to right. For example
@@ -143,13 +138,13 @@ template VerifyBoatLocation(boat_length, marker) {
         x_in_range[i] <== greater_eq_than_lower_x[i].out * less_eq_than_upper_x[i].out;
         y_in_range[i] <== greater_eq_than_lower_y[i].out * less_eq_than_upper_y[i].out;
     }
-
-    signal in_range[10][10];
+    var sum = 0;
     for (var i = 0; i < 10; i++) {
         for (var j = 0; j < 10; j++) {
-            in_range[i][j] <== x_in_range[i] * y_in_range[j];
-            mask[i][j] <== in_range[i][j] * marker;
-            in_range[i][j] * board[i][j] === mask[i][j];
+            mask[i][j] <== x_in_range[i] * y_in_range[j];
+            sum += mask[i][j];
         }
     }
+    // Avoids any out of bound coordinates.
+    sum === boat_length;
 }
