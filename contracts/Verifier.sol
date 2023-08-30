@@ -11,7 +11,7 @@
 //
 //
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.6.11;
+pragma solidity ^0.8.13;
 library Pairing {
     struct G1Point {
         uint X;
@@ -200,17 +200,17 @@ contract Verifier {
              4626637647550145252577680314000249177379480805185755652192220328513149043401]
         );
         vk.IC = new Pairing.G1Point[](2);
-        
-        vk.IC[0] = Pairing.G1Point( 
+
+        vk.IC[0] = Pairing.G1Point(
             6751689722662583155429154590647216910453569781692994953724272404669301511087,
             68173091182440108333785728111127131337145789019908794775281447171584582873
-        );                                      
-        
-        vk.IC[1] = Pairing.G1Point( 
+        );
+
+        vk.IC[1] = Pairing.G1Point(
             18303606203987313003109860170945822520821164529785080224940399095005931582254,
             15047710940266290299916362473834029395645861119685356853872809030379050593823
-        );                                      
-        
+        );
+
     }
     function verify(uint[] memory input, Proof memory proof) internal view returns (uint) {
         uint256 snark_scalar_field = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
