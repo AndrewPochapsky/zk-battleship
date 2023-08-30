@@ -1,0 +1,53 @@
+{
+  "patrol_location": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      1
+    ]
+  ],
+  "sub_location": [
+    [
+      1,
+      8
+    ],
+    [
+      3,
+      8
+    ]
+  ],
+  "destroyer_location": [
+    [
+      5,
+      4
+    ],
+    [
+      5,
+      6
+    ]
+  ],
+  "battleship_location": [
+    [
+      5,
+      1
+    ],
+    [
+      8,
+      1
+    ]
+  ],
+  "carrier_location": [
+    [
+      5,
+      9
+    ],
+    [
+      9,
+      9
+    ]
+  ],
+  "secret": 96
+}

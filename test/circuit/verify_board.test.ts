@@ -50,6 +50,7 @@ describe("Test Verify Board", () => {
       secret: secret,
     };
     const commitment = await generateCommitment(board);
+    console.log("Commitment: " + commitment);
 
     await circuit.expectPass(board, { board_commitment: commitment });
   });
