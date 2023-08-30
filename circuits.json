@@ -1,0 +1,12 @@
+{
+  "verify_board": {
+    "file": "verify_board",
+    "template": "VerifyBoard",
+    "pubs": ["board_commitment"]
+  },
+  "verify_impact": {
+    "file": "verify_impact",
+    "template": "VerifyImpact",
+    "pubs": ["board_commitment", "coordinate"]
+  }
+}
