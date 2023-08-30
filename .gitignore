@@ -3,3 +3,6 @@ out/
 cache/
 build/
 ptau/
+
+# Auto-generated test files
+circuits/test
