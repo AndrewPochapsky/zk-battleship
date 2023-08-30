@@ -3,4 +3,4 @@ pragma circom 2.1.0;
 
 include "../verify_board.circom";
 
-component main {public[board_commitment]} = VerifyBoard();
+component main = VerifyBoard();

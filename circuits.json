@@ -1,8 +1,7 @@
 {
   "verify_board": {
     "file": "verify_board",
-    "template": "VerifyBoard",
-    "pubs": ["board_commitment"]
+    "template": "VerifyBoard"
   },
   "verify_impact": {
     "file": "verify_impact",
