@@ -3,6 +3,8 @@ out/
 cache/
 build/
 ptau/
+.env
+broadcast/
 
 # Auto-generated test files
 circuits/test

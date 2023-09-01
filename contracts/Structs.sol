@@ -33,3 +33,8 @@ struct ImpactProof {
     uint256[2] c;
     uint256[4] input;
 }
+
+function createPlayer(address player, uint256 boardCommitment) pure returns (Player memory) {
+    Tile[10][10] memory emptyBoard;
+    return Player({player: player, boardCommitment: boardCommitment, visibleBoard: emptyBoard});
+}
