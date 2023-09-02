@@ -4,8 +4,14 @@ pragma solidity ^0.8.13;
 struct Game {
     Player player1;
     Player player2;
-    address turn;
+    Turn turn;
     address winner;
+}
+
+struct Turn {
+    address player;
+    uint8[2] lastMove;
+    bool isFirstTurn;
 }
 
 enum Tile {
@@ -18,6 +24,7 @@ struct Player {
     address player;
     uint256 boardCommitment;
     Tile[10][10] visibleBoard;
+    uint8 healthRemaining;
 }
 
 struct BoardProof {
@@ -34,7 +41,16 @@ struct ImpactProof {
     uint256[4] input;
 }
 
-function createPlayer(address player, uint256 boardCommitment) pure returns (Player memory) {
+function createPlayerStruct(address player, uint256 boardCommitment) pure returns (Player memory) {
     Tile[10][10] memory emptyBoard;
-    return Player({player: player, boardCommitment: boardCommitment, visibleBoard: emptyBoard});
+    return Player({player: player, boardCommitment: boardCommitment, visibleBoard: emptyBoard, healthRemaining: 17});
+}
+
+function createGameStruct(address player1, BoardProof memory boardProof1, address player2, BoardProof memory boardProof2) pure returns (Game memory) {
+    return Game({
+            player1: createPlayerStruct(player1, boardProof1.input[0]),
+            player2: createPlayerStruct(player2, boardProof2.input[0]),
+            turn: Turn({player: player1, lastMove: [0, 0], isFirstTurn: true}),
+            winner: address(0)
+        });
 }
