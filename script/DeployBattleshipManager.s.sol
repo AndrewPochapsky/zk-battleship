@@ -15,7 +15,7 @@ contract DeployBattleshipManager is Script {
         if (mockVerifyImpactVerifier) {
             verifyImpactVerifierAddress = address(new MockVerifyImpactVerifier());
         } else {
-            verifyImpactVerifierAddress= address(new VerifyImpactVerifier());
+            verifyImpactVerifierAddress = address(new VerifyImpactVerifier());
         }
         BattleshipManager battleshipeManager =
             new BattleshipManager(address(verifyBoardVerifier), verifyImpactVerifierAddress);

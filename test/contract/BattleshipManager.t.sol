@@ -183,9 +183,45 @@ contract BattleshipManagerTest is Test {
         battleshipManager.playFirstTurn(0, [0, 0]);
 
         // Player 1 will have all of the correct guesses.
-        uint8[2][17] memory player1Guesses = [[0, 1], [1, 8], [2, 8], [3,8], [5,4], [5,5], [5,6], [5, 1], [6, 1], [7,1], [8, 1], [5,9], [6, 9], [7, 9], [8, 9], [9, 9], [4, 5]];
+        uint8[2][17] memory player1Guesses = [
+            [0, 1],
+            [1, 8],
+            [2, 8],
+            [3, 8],
+            [5, 4],
+            [5, 5],
+            [5, 6],
+            [5, 1],
+            [6, 1],
+            [7, 1],
+            [8, 1],
+            [5, 9],
+            [6, 9],
+            [7, 9],
+            [8, 9],
+            [9, 9],
+            [4, 5]
+        ];
         // Player 2 will just guess along the board.
-        uint8[2][17] memory player2Guesses = [[0, 1], [0, 2], [0, 3], [0,4], [0,5], [0,6], [0,7], [0, 8], [0, 9], [1,0], [1, 1], [1,2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7]];
+        uint8[2][17] memory player2Guesses = [
+            [0, 1],
+            [0, 2],
+            [0, 3],
+            [0, 4],
+            [0, 5],
+            [0, 6],
+            [0, 7],
+            [0, 8],
+            [0, 9],
+            [1, 0],
+            [1, 1],
+            [1, 2],
+            [1, 3],
+            [1, 4],
+            [1, 5],
+            [1, 6],
+            [1, 7]
+        ];
 
         Game memory game = battleshipManager.getGame(0);
 
@@ -204,7 +240,8 @@ contract BattleshipManagerTest is Test {
                 player2Index++;
                 boardCommitment = boardConfiguration.getBoardProof2().input[0];
             }
-            ImpactProof memory impactProof = createDummyImpactProof(game.turn.lastMove, player == PLAYER2, boardCommitment);
+            ImpactProof memory impactProof =
+                createDummyImpactProof(game.turn.lastMove, player == PLAYER2, boardCommitment);
             vm.prank(player);
             battleshipManager.playTurnAndVerifyImpact(0, coordinate, impactProof);
 
@@ -222,16 +259,17 @@ contract BattleshipManagerTest is Test {
         }
     }
 
-    function createDummyImpactProof(uint8[2] memory coordinate, bool isHit, uint256 boardCommitment) private pure returns (ImpactProof memory) {
+    function createDummyImpactProof(uint8[2] memory coordinate, bool isHit, uint256 boardCommitment)
+        private
+        pure
+        returns (ImpactProof memory)
+    {
         // To prevent type conversion error.
         uint256 zero = 0;
         return ImpactProof({
-            a: [zero, zero ],
-            b: [
-                [zero, zero ],
-                [zero, zero ]
-            ],
-            c: [zero, zero ],
+            a: [zero, zero],
+            b: [[zero, zero], [zero, zero]],
+            c: [zero, zero],
             input: [isHit ? 1 : 0, boardCommitment, coordinate[0], coordinate[1]]
         });
     }
