@@ -42,7 +42,7 @@ To get started with zk-battleship, follow these installation steps:
   ```bash
   npm install
   ```
-3. Run circom tests using `circomkit`
+3. Run circom tests using `npm`
   ```bash
   npm test
   ```
@@ -67,7 +67,7 @@ There are three contracts:
   -   Turn `2`: Player2 provides a proof of the outcome of the reveal and also provides a coordinate they wish for Player1 to reveal.
   
        ...
-  -   Turn `n`: Going player provides an impact proof of the coordinate proposed by the opposting player during Turn `n-1` and provides a coordinate for the opposing player to reveal on Turn `n+1`.
+  -   Turn `n`: Going player provides an impact proof of the coordinate proposed by the opposing player during Turn `n-1` and provides a coordinate for the opposing player to reveal on Turn `n+1`.
 
 If at any point a player runs out of ships, the game ends. 
 
