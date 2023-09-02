@@ -46,11 +46,16 @@ function createPlayerStruct(address player, uint256 boardCommitment) pure return
     return Player({player: player, boardCommitment: boardCommitment, visibleBoard: emptyBoard, healthRemaining: 17});
 }
 
-function createGameStruct(address player1, BoardProof memory boardProof1, address player2, BoardProof memory boardProof2) pure returns (Game memory) {
+function createGameStruct(
+    address player1,
+    BoardProof memory boardProof1,
+    address player2,
+    BoardProof memory boardProof2
+) pure returns (Game memory) {
     return Game({
-            player1: createPlayerStruct(player1, boardProof1.input[0]),
-            player2: createPlayerStruct(player2, boardProof2.input[0]),
-            turn: Turn({player: player1, lastMove: [0, 0], isFirstTurn: true}),
-            winner: address(0)
-        });
+        player1: createPlayerStruct(player1, boardProof1.input[0]),
+        player2: createPlayerStruct(player2, boardProof2.input[0]),
+        turn: Turn({player: player1, lastMove: [0, 0], isFirstTurn: true}),
+        winner: address(0)
+    });
 }

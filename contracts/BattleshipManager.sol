@@ -47,7 +47,9 @@ contract BattleshipManager {
         s_games[gameIndex] = game;
     }
 
-    function playTurnAndVerifyImpact(uint256 gameIndex, uint8[2] memory coordinate, ImpactProof memory impactProof) public {
+    function playTurnAndVerifyImpact(uint256 gameIndex, uint8[2] memory coordinate, ImpactProof memory impactProof)
+        public
+    {
         Game memory game = getGame(gameIndex);
         require(!game.turn.isFirstTurn, "It is the first turn, please call `playFirstTurn` instead");
         require(game.turn.player == msg.sender, "Not your turn");
@@ -63,7 +65,7 @@ contract BattleshipManager {
         player.visibleBoard[turn.lastMove[0]][turn.lastMove[1]] = tile;
 
         if (isHit) {
-            game = handleHit(player, game);
+            handleHit(player, game);
         }
 
         // If game did not end as a result of the last move, keep playing.
@@ -72,7 +74,6 @@ contract BattleshipManager {
             game.turn.lastMove = coordinate;
             game.turn.player = getNextTurnPlayer(game);
         }
-
         s_games[gameIndex] = game;
     }
 
@@ -80,12 +81,11 @@ contract BattleshipManager {
         return s_games[index];
     }
 
-    function handleHit(Player memory player, Game memory game) private pure returns (Game memory updatedGame) {
+    function handleHit(Player memory player, Game memory game) private pure {
         address nextTurnPlayer = getNextTurnPlayer(game);
         player.healthRemaining -= 1;
         if (player.healthRemaining == 0) {
             game.winner = nextTurnPlayer;
-            return game;
         }
     }
 
@@ -93,7 +93,8 @@ contract BattleshipManager {
         require(player.boardCommitment == impactProof.input[1], "Board commitment used in proof is invalid");
         require(turn.lastMove[0] == impactProof.input[2], "Invalid x-coordinate");
         require(turn.lastMove[1] == impactProof.input[3], "Invalid y-coordinate");
-        bool proofIsValid = s_verifyImpactVerifier.verifyProof(impactProof.a, impactProof.b, impactProof.c, impactProof.input);
+        bool proofIsValid =
+            s_verifyImpactVerifier.verifyProof(impactProof.a, impactProof.b, impactProof.c, impactProof.input);
         require(proofIsValid, "Impact proof is invalid");
     }
 
