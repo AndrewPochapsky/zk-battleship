@@ -5,15 +5,25 @@ import {Script, console2} from "forge-std/Script.sol";
 import {BattleshipManager} from "../contracts/BattleshipManager.sol";
 import {Verifier as VerifyBoardVerifier} from "../contracts/VerifyBoardVerifier.sol";
 import {Verifier as VerifyImpactVerifier} from "../contracts/VerifyImpactVerifier.sol";
+import {MockVerifyImpactVerifier} from "../test/contract/mock/MockVerifyImpactVerifier.sol";
 
 contract DeployBattleshipManager is Script {
-    function run() external returns (BattleshipManager) {
+    function deploy(bool mockVerifyImpactVerifier) public returns (BattleshipManager) {
         vm.startBroadcast();
         VerifyBoardVerifier verifyBoardVerifier = new VerifyBoardVerifier();
-        VerifyImpactVerifier verifyImpactVerifier = new VerifyImpactVerifier();
+        address verifyImpactVerifierAddress;
+        if (mockVerifyImpactVerifier) {
+            verifyImpactVerifierAddress = address(new MockVerifyImpactVerifier());
+        } else {
+            verifyImpactVerifierAddress= address(new VerifyImpactVerifier());
+        }
         BattleshipManager battleshipeManager =
-            new BattleshipManager(address(verifyBoardVerifier), address(verifyImpactVerifier));
+            new BattleshipManager(address(verifyBoardVerifier), verifyImpactVerifierAddress);
         vm.stopBroadcast();
         return battleshipeManager;
+    }
+
+    function run() external returns (BattleshipManager) {
+        return deploy(false);
     }
 }
